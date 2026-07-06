@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const supabase = createClient()
-  const { data: game } = await supabase.from('games').select('name').eq('slug', params.slug).single()
+  const { data: game } = await supabase.from('srh_games').select('name').eq('slug', params.slug).single()
   return { title: game?.name ?? 'Game' }
 }
 
@@ -18,7 +18,7 @@ export default async function GamePage({ params }: Props) {
   const supabase = createClient()
 
   const { data: game } = await supabase
-    .from('games')
+    .from('srh_games')
     .select('*')
     .eq('slug', params.slug)
     .single()
@@ -29,23 +29,23 @@ export default async function GamePage({ params }: Props) {
 
   const [{ data: events }, { data: teams }, { data: updates }] = await Promise.all([
     supabase
-      .from('events')
+      .from('srh_events')
       .select('id, title, event_date, platform')
       .eq('game_id', game.id)
       .gte('event_date', now)
       .order('event_date', { ascending: true })
       .limit(5),
     supabase
-      .from('teams')
+      .from('srh_teams')
       .select('id, name, description')
       .eq('game_id', game.id)
       .order('created_at', { ascending: false })
       .limit(5),
     supabase
-      .from('game_updates')
+      .from('srh_game_updates')
       .select(`
         id, version, release_date, summary,
-        update_ratings(rating)
+        update_ratings:srh_update_ratings(rating)
       `)
       .eq('game_id', game.id)
       .order('release_date', { ascending: false })

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Calendar, Plus, ExternalLink, Users } from 'lucide-react'
 import { format } from 'date-fns'
@@ -13,15 +13,15 @@ export default async function EventsPage({
   const supabase = createClient()
 
   let query = supabase
-    .from('events')
-    .select(`id, title, description, event_date, platform, max_participants, games(id, name, slug),
-             event_rsvps(id)`)
+    .from('srh_events')
+    .select(`id, title, description, event_date, platform, max_participants, games:srh_games(id, name, slug),
+             event_rsvps:srh_event_rsvps(id)`)
     .gte('event_date', new Date().toISOString())
     .order('event_date', { ascending: true })
 
   const { data: events } = await query
 
-  const { data: games } = await supabase.from('games').select('id, name, slug').order('name')
+  const { data: games } = await supabase.from('srh_games').select('id, name, slug').order('name')
 
   return (
     <div className="space-y-6">
@@ -78,7 +78,7 @@ export default async function EventsPage({
               <div className="flex items-center justify-between text-xs text-slate-500">
                 <span className="flex items-center gap-1">
                   <Calendar size={11} />
-                  {format(new Date(ev.event_date), 'MMM d, yyyy · HH:mm')}
+                  {format(new Date(ev.event_date), 'MMM d, yyyy Â· HH:mm')}
                 </span>
                 <span className="flex items-center gap-1">
                   <Users size={11} />

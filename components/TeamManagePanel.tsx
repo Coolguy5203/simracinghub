@@ -21,7 +21,7 @@ export function TeamManagePanel({ memberId, teamId, username, currentRole }: Pro
   const remove = async () => {
     if (!confirm(`Remove ${username} from the team?`)) return
     setLoading(true)
-    await supabase.from('team_members').delete().eq('id', memberId)
+    await supabase.from('srh_team_members').delete().eq('id', memberId)
     setOpen(false)
     router.refresh()
     setLoading(false)
@@ -30,7 +30,7 @@ export function TeamManagePanel({ memberId, teamId, username, currentRole }: Pro
   const toggleRole = async () => {
     const newRole = currentRole === 'owner' ? 'member' : 'owner'
     setLoading(true)
-    await supabase.from('team_members').update({ role: newRole }).eq('id', memberId)
+    await supabase.from('srh_team_members').update({ role: newRole }).eq('id', memberId)
     setOpen(false)
     router.refresh()
     setLoading(false)

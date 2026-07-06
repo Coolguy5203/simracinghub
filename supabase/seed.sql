@@ -1,8 +1,5 @@
--- =============================================
 -- SimRacer Hub — Game Seed Data
--- =============================================
-
-insert into public.games (name, slug, description, platform) values
+insert into public.srh_games (name, slug, description, platform) values
   ('iRacing', 'iracing', 'The premier subscription-based online racing simulator. Features laser-scanned tracks and a structured license system.', 'PC'),
   ('Assetto Corsa Competizione', 'acc', 'Official Blancpain GT Series simulator. Unmatched tyre model and GT3/GT4 physics, beautiful Unreal Engine 4 visuals.', 'PC / Console'),
   ('rFactor 2', 'rfactor2', 'Deep physics and modding platform. Features dynamic rubber, live track, and a rich modding community.', 'PC'),

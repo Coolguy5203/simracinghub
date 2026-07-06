@@ -32,7 +32,7 @@ export function Navbar() {
       setUser(user)
       if (user) {
         const { data } = await supabase
-          .from('profiles')
+          .from('srh_profiles')
           .select('username')
           .eq('id', user.id)
           .single()
@@ -44,7 +44,7 @@ export function Navbar() {
       setUser(session?.user ?? null)
       if (session?.user) {
         const { data } = await supabase
-          .from('profiles')
+          .from('srh_profiles')
           .select('username')
           .eq('id', session.user.id)
           .single()

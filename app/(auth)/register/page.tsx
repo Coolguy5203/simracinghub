@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
     // Check username uniqueness
     const { data: existing } = await supabase
-      .from('profiles')
+      .from('srh_profiles')
       .select('username')
       .eq('username', username)
       .maybeSingle()
@@ -61,7 +61,7 @@ export default function RegisterPage() {
     }
 
     // Create profile
-    await supabase.from('profiles').insert({
+    await supabase.from('srh_profiles').insert({
       id: data.user.id,
       username,
     })

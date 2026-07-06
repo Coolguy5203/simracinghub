@@ -13,7 +13,7 @@ export function DeleteEventButton({ eventId }: { eventId: string }) {
   const handleDelete = async () => {
     if (!confirm('Delete this event? This cannot be undone.')) return
     setLoading(true)
-    await supabase.from('events').delete().eq('id', eventId)
+    await supabase.from('srh_events').delete().eq('id', eventId)
     router.push('/events')
     router.refresh()
   }

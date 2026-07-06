@@ -12,7 +12,7 @@ export default async function EditTeamPage({ params }: Props) {
   if (!user) redirect('/login')
 
   const { data: membership } = await supabase
-    .from('team_members')
+    .from('srh_team_members')
     .select('role')
     .eq('team_id', params.id)
     .eq('user_id', user.id)
@@ -20,10 +20,10 @@ export default async function EditTeamPage({ params }: Props) {
 
   if (membership?.role !== 'owner') redirect(`/teams/${params.id}`)
 
-  const { data: team } = await supabase.from('teams').select('*').eq('id', params.id).single()
+  const { data: team } = await supabase.from('srh_teams').select('*').eq('id', params.id).single()
   if (!team) notFound()
 
-  const { data: games } = await supabase.from('games').select('id, name').order('name')
+  const { data: games } = await supabase.from('srh_games').select('id, name').order('name')
 
   return (
     <div className="max-w-2xl mx-auto">

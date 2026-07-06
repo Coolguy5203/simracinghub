@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Calendar, Users, Star, ChevronRight, Flag } from 'lucide-react'
 import { format } from 'date-fns'
@@ -18,14 +18,14 @@ export default async function Home() {
 
   const [{ data: upcomingEvents }, { data: recentTeams }] = await Promise.all([
     supabase
-      .from('events')
-      .select('id, title, event_date, platform, games(name, slug)')
+      .from('srh_events')
+      .select('id, title, event_date, platform, games:srh_games(name, slug)')
       .gte('event_date', new Date().toISOString())
       .order('event_date', { ascending: true })
       .limit(4),
     supabase
-      .from('teams')
-      .select('id, name, description, games(name, slug)')
+      .from('srh_teams')
+      .select('id, name, description, games:srh_games(name, slug)')
       .order('created_at', { ascending: false })
       .limit(4),
   ])
@@ -81,7 +81,7 @@ export default async function Home() {
             <h2 className="section-title flex items-center gap-2 mb-0">
               <Calendar size={18} className="text-accent" /> Upcoming Events
             </h2>
-            <Link href="/events" className="text-sm text-accent hover:text-accent-hover">View all →</Link>
+            <Link href="/events" className="text-sm text-accent hover:text-accent-hover">View all â†’</Link>
           </div>
           <div className="space-y-3">
             {upcomingEvents && upcomingEvents.length > 0 ? (
@@ -90,7 +90,7 @@ export default async function Home() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-slate-100 group-hover:text-white truncate">{ev.title}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{ev.games?.name} · {ev.platform}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{ev.games?.name} Â· {ev.platform}</p>
                     </div>
                     <p className="text-xs text-slate-400 ml-3 shrink-0">
                       {format(new Date(ev.event_date), 'MMM d')}
@@ -113,7 +113,7 @@ export default async function Home() {
             <h2 className="section-title flex items-center gap-2 mb-0">
               <Users size={18} className="text-accent" /> Recent Teams
             </h2>
-            <Link href="/teams" className="text-sm text-accent hover:text-accent-hover">View all →</Link>
+            <Link href="/teams" className="text-sm text-accent hover:text-accent-hover">View all â†’</Link>
           </div>
           <div className="space-y-3">
             {recentTeams && recentTeams.length > 0 ? (

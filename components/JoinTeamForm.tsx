@@ -20,7 +20,7 @@ export function JoinTeamForm({ userId }: { userId: string }) {
     setLoading(true)
 
     const { data: team } = await supabase
-      .from('teams')
+      .from('srh_teams')
       .select('id, name')
       .eq('invite_code', code.trim().toUpperCase())
       .single()
@@ -33,7 +33,7 @@ export function JoinTeamForm({ userId }: { userId: string }) {
 
     // Check already a member
     const { data: existing } = await supabase
-      .from('team_members')
+      .from('srh_team_members')
       .select('id')
       .eq('team_id', team.id)
       .eq('user_id', userId)
@@ -45,7 +45,7 @@ export function JoinTeamForm({ userId }: { userId: string }) {
       return
     }
 
-    await supabase.from('team_members').insert({ team_id: team.id, user_id: userId, role: 'member' })
+    await supabase.from('srh_team_members').insert({ team_id: team.id, user_id: userId, role: 'member' })
     setSuccess(`Joined "${team.name}"!`)
     setCode('')
     setTimeout(() => router.push(`/teams/${team.id}`), 1000)

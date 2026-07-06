@@ -13,7 +13,7 @@ export default async function NewTeamPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: games } = await supabase.from('games').select('id, name').order('name')
+  const { data: games } = await supabase.from('srh_games').select('id, name').order('name')
 
   return (
     <div className="max-w-2xl mx-auto">

@@ -30,9 +30,9 @@ export function RatingForm({ updateId, existingRating, gameSlug }: Props) {
     if (!user) { setError('Not signed in.'); setLoading(false); return }
 
     if (existingRating) {
-      await supabase.from('update_ratings').update({ rating, review: review || null }).eq('id', existingRating.id)
+      await supabase.from('srh_update_ratings').update({ rating, review: review || null }).eq('id', existingRating.id)
     } else {
-      await supabase.from('update_ratings').insert({ update_id: updateId, user_id: user.id, rating, review: review || null })
+      await supabase.from('srh_update_ratings').insert({ update_id: updateId, user_id: user.id, rating, review: review || null })
     }
 
     setLoading(false)

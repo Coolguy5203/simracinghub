@@ -11,11 +11,11 @@ export default async function UpdateDetailPage({ params }: Props) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: game } = await supabase.from('games').select('*').eq('slug', params.slug).single()
+  const { data: game } = await supabase.from('srh_games').select('*').eq('slug', params.slug).single()
   if (!game) notFound()
 
   const { data: update } = await supabase
-    .from('game_updates')
+    .from('srh_game_updates')
     .select('*')
     .eq('id', params.updateId)
     .eq('game_id', game.id)
@@ -23,15 +23,15 @@ export default async function UpdateDetailPage({ params }: Props) {
   if (!update) notFound()
 
   const { data: ratings } = await supabase
-    .from('update_ratings')
-    .select(`id, rating, review, created_at, profiles(username)`)
+    .from('srh_update_ratings')
+    .select(`id, rating, review, created_at, profiles:srh_profiles(username)`)
     .eq('update_id', params.updateId)
     .order('created_at', { ascending: false })
 
   let userRating = null
   if (user) {
     const { data } = await supabase
-      .from('update_ratings')
+      .from('srh_update_ratings')
       .select('*')
       .eq('update_id', params.updateId)
       .eq('user_id', user.id)

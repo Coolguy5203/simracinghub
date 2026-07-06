@@ -30,7 +30,7 @@ export function AddUpdateForm({ gameId, gameSlug }: Props) {
 
     // Check duplicate
     const { data: existing } = await supabase
-      .from('game_updates')
+      .from('srh_game_updates')
       .select('id')
       .eq('game_id', gameId)
       .eq('version', form.version.trim())
@@ -43,7 +43,7 @@ export function AddUpdateForm({ gameId, gameSlug }: Props) {
     }
 
     const { data, error: err } = await supabase
-      .from('game_updates')
+      .from('srh_game_updates')
       .insert({
         game_id: gameId,
         version: form.version.trim(),

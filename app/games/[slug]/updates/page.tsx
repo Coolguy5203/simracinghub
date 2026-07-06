@@ -13,12 +13,12 @@ export default async function UpdatesPage({ params }: Props) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: game } = await supabase.from('games').select('*').eq('slug', params.slug).single()
+  const { data: game } = await supabase.from('srh_games').select('*').eq('slug', params.slug).single()
   if (!game) notFound()
 
   const { data: updates } = await supabase
-    .from('game_updates')
-    .select(`id, version, release_date, summary, update_ratings(rating)`)
+    .from('srh_game_updates')
+    .select(`id, version, release_date, summary, update_ratings:srh_update_ratings(rating)`)
     .eq('game_id', game.id)
     .order('release_date', { ascending: false })
 

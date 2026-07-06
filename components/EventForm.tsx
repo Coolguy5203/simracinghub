@@ -37,7 +37,7 @@ export function EventForm({ games, defaultGameId, userId }: Props) {
     setError('')
     setLoading(true)
 
-    const { data, error: err } = await supabase.from('events').insert({
+    const { data, error: err } = await supabase.from('srh_events').insert({
       game_id: form.game_id,
       created_by: userId,
       title: form.title,

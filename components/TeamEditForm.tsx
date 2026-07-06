@@ -30,7 +30,7 @@ export function TeamEditForm({ team, games }: Props) {
     setError('')
     setLoading(true)
 
-    const { error: err } = await supabase.from('teams').update({
+    const { error: err } = await supabase.from('srh_teams').update({
       name: form.name,
       description: form.description || null,
       game_id: form.game_id || null,
@@ -50,8 +50,8 @@ export function TeamEditForm({ team, games }: Props) {
   const handleDelete = async () => {
     if (!confirm('Delete this team? This cannot be undone.')) return
     setLoading(true)
-    await supabase.from('team_members').delete().eq('team_id', team.id)
-    await supabase.from('teams').delete().eq('id', team.id)
+    await supabase.from('srh_team_members').delete().eq('team_id', team.id)
+    await supabase.from('srh_teams').delete().eq('id', team.id)
     router.push('/teams')
     router.refresh()
   }

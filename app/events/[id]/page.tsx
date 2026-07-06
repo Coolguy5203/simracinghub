@@ -13,16 +13,16 @@ export default async function EventDetailPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const { data: event } = await supabase
-    .from('events')
-    .select(`*, games(id, name, slug), profiles(username)`)
+    .from('srh_events')
+    .select(`*, games:srh_games(id, name, slug), profiles:srh_profiles(username)`)
     .eq('id', params.id)
     .single()
 
   if (!event) notFound()
 
   const { data: rsvps } = await supabase
-    .from('event_rsvps')
-    .select('id, user_id, profiles(username)')
+    .from('srh_event_rsvps')
+    .select('id, user_id, profiles:srh_profiles(username)')
     .eq('event_id', params.id)
 
   const userRsvp = rsvps?.find((r: any) => r.user_id === user?.id)

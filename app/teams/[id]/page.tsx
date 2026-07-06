@@ -11,8 +11,8 @@ export default async function TeamPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const { data: team } = await supabase
-    .from('teams')
-    .select(`*, games(name, slug)`)
+    .from('srh_teams')
+    .select(`*, games:srh_games(name, slug)`)
     .eq('id', params.id)
     .single()
 
@@ -21,7 +21,7 @@ export default async function TeamPage({ params }: Props) {
   // Check membership — private team
   const { data: membership } = user
     ? await supabase
-        .from('team_members')
+        .from('srh_team_members')
         .select('role')
         .eq('team_id', params.id)
         .eq('user_id', user.id)
@@ -48,8 +48,8 @@ export default async function TeamPage({ params }: Props) {
   }
 
   const { data: members } = await supabase
-    .from('team_members')
-    .select('id, role, joined_at, user_id, profiles(username)')
+    .from('srh_team_members')
+    .select('id, role, joined_at, user_id, profiles:srh_profiles(username)')
     .eq('team_id', params.id)
     .order('joined_at', { ascending: true })
 

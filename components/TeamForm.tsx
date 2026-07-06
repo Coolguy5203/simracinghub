@@ -35,7 +35,7 @@ export function TeamForm({ games, defaultGameId, userId }: Props) {
     const invite_code = generateInviteCode()
 
     const { data: team, error: teamErr } = await supabase
-      .from('teams')
+      .from('srh_teams')
       .insert({
         name: form.name,
         description: form.description || null,
@@ -54,7 +54,7 @@ export function TeamForm({ games, defaultGameId, userId }: Props) {
     }
 
     // Add creator as owner
-    await supabase.from('team_members').insert({
+    await supabase.from('srh_team_members').insert({
       team_id: team.id,
       user_id: userId,
       role: 'owner',

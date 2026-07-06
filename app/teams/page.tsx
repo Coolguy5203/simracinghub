@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Users, Plus, Lock } from 'lucide-react'
 import { JoinTeamForm } from '@/components/JoinTeamForm'
@@ -11,8 +11,8 @@ export default async function TeamsPage() {
 
   // Teams with member count (only show names/descriptions, not private data)
   const { data: teams } = await supabase
-    .from('teams')
-    .select(`id, name, description, games(name, slug), team_members(id)`)
+    .from('srh_teams')
+    .select(`id, name, description, games:srh_games(name, slug), team_members:srh_team_members(id)`)
     .order('created_at', { ascending: false })
 
   return (
@@ -61,7 +61,7 @@ export default async function TeamsPage() {
               </span>
               {user && (
                 <Link href={`/teams/${t.id}`} className="text-xs text-accent hover:underline">
-                  View →
+                  View â†’
                 </Link>
               )}
             </div>

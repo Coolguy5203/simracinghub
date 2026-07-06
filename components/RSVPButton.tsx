@@ -23,10 +23,10 @@ export function RSVPButton({ eventId, userId, hasRsvp, rsvpId, isFull }: Props) 
     setLoading(true)
     if (optimistic) {
       setOptimistic(false)
-      await supabase.from('event_rsvps').delete().eq('event_id', eventId).eq('user_id', userId)
+      await supabase.from('srh_event_rsvps').delete().eq('event_id', eventId).eq('user_id', userId)
     } else {
       setOptimistic(true)
-      await supabase.from('event_rsvps').insert({ event_id: eventId, user_id: userId })
+      await supabase.from('srh_event_rsvps').insert({ event_id: eventId, user_id: userId })
     }
     setLoading(false)
     router.refresh()
