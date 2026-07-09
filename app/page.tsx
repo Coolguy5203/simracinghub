@@ -7,11 +7,15 @@ import { Avatar } from '@/components/Avatar'
 
 const FEATURED_GAMES = [
   { name: 'iRacing', slug: 'iracing', tag: 'PC' },
+  { name: 'Assetto Corsa EVO', slug: 'ac-evo', tag: 'PC' },
   { name: 'Assetto Corsa Competizione', slug: 'acc', tag: 'PC / Console' },
-  { name: 'rFactor 2', slug: 'rfactor2', tag: 'PC' },
-  { name: 'Automobilista 2', slug: 'automobilista2', tag: 'PC' },
-  { name: 'F1 24', slug: 'f1-24', tag: 'PC / Console' },
+  { name: 'Le Mans Ultimate', slug: 'lemans-ultimate', tag: 'PC' },
+  { name: 'F1 26', slug: 'f1-26', tag: 'PC / Console' },
   { name: 'Gran Turismo 7', slug: 'gran-turismo-7', tag: 'Console' },
+  { name: 'Forza Motorsport', slug: 'forza-motorsport', tag: 'PC / Console' },
+  { name: 'Automobilista 2', slug: 'automobilista2', tag: 'PC' },
+  { name: 'rFactor 2', slug: 'rfactor2', tag: 'PC' },
+  { name: 'EA Sports WRC', slug: 'ea-wrc', tag: 'PC / Console' },
   { name: 'RaceRoom', slug: 'raceroom', tag: 'PC' },
 ]
 
@@ -173,7 +177,7 @@ export default async function Home() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-orange-400">Rate every update.</span>
             </h1>
             <p className="text-slate-400 text-lg max-w-xl mx-auto animate-fade-up [animation-delay:160ms]">
-              The central hub for iRacing, ACC, rFactor 2, Automobilista 2, F1 24, Gran Turismo 7, RaceRoom, and more.
+              The central hub for iRacing, Assetto Corsa EVO, ACC, Le Mans Ultimate, F1 26, Gran Turismo 7, and more.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2 animate-fade-up [animation-delay:240ms]">
               <Link href="/events" className="btn-primary flex items-center gap-2">

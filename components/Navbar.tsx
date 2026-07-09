@@ -11,11 +11,15 @@ import type { User } from '@supabase/supabase-js'
 
 const GAMES = [
   { name: 'iRacing', slug: 'iracing' },
+  { name: 'Assetto Corsa EVO', slug: 'ac-evo' },
   { name: 'ACC', slug: 'acc' },
-  { name: 'rFactor 2', slug: 'rfactor2' },
-  { name: 'Automobilista 2', slug: 'automobilista2' },
-  { name: 'F1 24', slug: 'f1-24' },
+  { name: 'Le Mans Ultimate', slug: 'lemans-ultimate' },
+  { name: 'F1 26', slug: 'f1-26' },
   { name: 'Gran Turismo 7', slug: 'gran-turismo-7' },
+  { name: 'Forza Motorsport', slug: 'forza-motorsport' },
+  { name: 'Automobilista 2', slug: 'automobilista2' },
+  { name: 'rFactor 2', slug: 'rfactor2' },
+  { name: 'EA Sports WRC', slug: 'ea-wrc' },
   { name: 'RaceRoom', slug: 'raceroom' },
 ]
 

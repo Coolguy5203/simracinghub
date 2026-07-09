@@ -36,7 +36,7 @@ export const GAME_THEMES: Record<string, GameTheme> = {
     solid: 'bg-yellow-500',
     glow: 'shadow-yellow-500/20',
   },
-  'f1-24': {
+  'f1-26': {
     monogram: 'F1',
     gradient: 'from-red-600/25 via-red-900/15 to-transparent',
     text: 'text-red-400',
@@ -56,6 +56,34 @@ export const GAME_THEMES: Record<string, GameTheme> = {
     text: 'text-sky-400',
     solid: 'bg-sky-500',
     glow: 'shadow-sky-500/20',
+  },
+  'ac-evo': {
+    monogram: 'EVO',
+    gradient: 'from-rose-600/25 via-rose-900/15 to-transparent',
+    text: 'text-rose-400',
+    solid: 'bg-rose-500',
+    glow: 'shadow-rose-500/20',
+  },
+  'lemans-ultimate': {
+    monogram: 'LMU',
+    gradient: 'from-indigo-600/25 via-indigo-900/15 to-transparent',
+    text: 'text-indigo-400',
+    solid: 'bg-indigo-500',
+    glow: 'shadow-indigo-500/20',
+  },
+  'forza-motorsport': {
+    monogram: 'FM',
+    gradient: 'from-lime-600/25 via-lime-900/15 to-transparent',
+    text: 'text-lime-400',
+    solid: 'bg-lime-500',
+    glow: 'shadow-lime-500/20',
+  },
+  'ea-wrc': {
+    monogram: 'WRC',
+    gradient: 'from-teal-600/25 via-teal-900/15 to-transparent',
+    text: 'text-teal-400',
+    solid: 'bg-teal-500',
+    glow: 'shadow-teal-500/20',
   },
 }
 
