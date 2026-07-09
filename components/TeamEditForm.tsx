@@ -3,14 +3,22 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { AlertCircle, Trash2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { TEAM_COLORS } from '@/lib/teamColors'
+import { AlertCircle, Trash2, Check } from 'lucide-react'
 
 interface Props {
-  team: { id: string; name: string; description: string | null; game_id: string | null; announcements: string | null }
-  games: { id: string; name: string }[]
+  team: {
+    id: string
+    name: string
+    tag: string | null
+    color: string | null
+    description: string | null
+    announcements: string | null
+  }
 }
 
-export function TeamEditForm({ team, games }: Props) {
+export function TeamEditForm({ team }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -18,8 +26,9 @@ export function TeamEditForm({ team, games }: Props) {
 
   const [form, setForm] = useState({
     name: team.name,
+    tag: team.tag ?? '',
+    color: team.color ?? TEAM_COLORS[0].value,
     description: team.description ?? '',
-    game_id: team.game_id ?? '',
     announcements: team.announcements ?? '',
   })
 
@@ -28,12 +37,18 @@ export function TeamEditForm({ team, games }: Props) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
 
+    if (form.tag && !/^[A-Za-z0-9]{2,4}$/.test(form.tag)) {
+      setError('Team tag must be 2–4 letters or numbers.')
+      return
+    }
+
+    setLoading(true)
     const { error: err } = await supabase.from('srh_teams').update({
       name: form.name,
+      tag: form.tag ? form.tag.toUpperCase() : null,
+      color: form.color,
       description: form.description || null,
-      game_id: form.game_id || null,
       announcements: form.announcements || null,
     }).eq('id', team.id)
 
@@ -50,7 +65,6 @@ export function TeamEditForm({ team, games }: Props) {
   const handleDelete = async () => {
     if (!confirm('Delete this team? This cannot be undone.')) return
     setLoading(true)
-    await supabase.from('srh_team_members').delete().eq('team_id', team.id)
     await supabase.from('srh_teams').delete().eq('id', team.id)
     router.push('/teams')
     router.refresh()
@@ -64,17 +78,43 @@ export function TeamEditForm({ team, games }: Props) {
         </div>
       )}
 
-      <div>
-        <label className="label">Team Name *</label>
-        <input type="text" value={form.name} onChange={e => set('name', e.target.value)} className="w-full" required />
+      <div className="grid sm:grid-cols-[1fr_8rem] gap-4">
+        <div>
+          <label className="label">Team Name *</label>
+          <input type="text" value={form.name} onChange={e => set('name', e.target.value)} className="w-full" required />
+        </div>
+        <div>
+          <label className="label">Tag</label>
+          <input
+            type="text"
+            value={form.tag}
+            onChange={e => set('tag', e.target.value.toUpperCase())}
+            className="w-full font-mono uppercase"
+            maxLength={4}
+            placeholder="APX"
+          />
+        </div>
       </div>
 
       <div>
-        <label className="label">Game</label>
-        <select value={form.game_id} onChange={e => set('game_id', e.target.value)} className="w-full">
-          <option value="">Cross-game / Any</option>
-          {games.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-        </select>
+        <label className="label">Livery Color</label>
+        <div className="flex gap-2 flex-wrap">
+          {TEAM_COLORS.map(c => (
+            <button
+              key={c.value}
+              type="button"
+              title={c.name}
+              onClick={() => set('color', c.value)}
+              className={cn(
+                'w-8 h-8 rounded-full transition-all flex items-center justify-center',
+                form.color === c.value ? 'ring-2 ring-white ring-offset-2 ring-offset-surface-1 scale-110' : 'hover:scale-110'
+              )}
+              style={{ backgroundColor: c.value }}
+            >
+              {form.color === c.value && <Check size={14} className="text-white drop-shadow" />}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>

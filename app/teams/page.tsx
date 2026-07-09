@@ -1,6 +1,7 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Users, Plus, Lock } from 'lucide-react'
+import { Users, Plus, Lock, Cake } from 'lucide-react'
+import { format } from 'date-fns'
 import { JoinTeamForm } from '@/components/JoinTeamForm'
 
 export const metadata = { title: 'Teams' }
@@ -9,10 +10,9 @@ export default async function TeamsPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Teams with member count (only show names/descriptions, not private data)
   const { data: teams } = await supabase
     .from('srh_teams')
-    .select(`id, name, description, games:srh_games(name, slug), team_members:srh_team_members(id)`)
+    .select('id, name, tag, color, description, created_at')
     .order('created_at', { ascending: false })
 
   return (
@@ -22,7 +22,9 @@ export default async function TeamsPage() {
           <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
             <Users className="text-accent" size={24} /> Teams
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Private invite-only teams across all titles</p>
+          <p className="text-slate-400 text-sm mt-1">
+            Private invite-only teams — one roster that carries over to every sim you race
+          </p>
         </div>
         {user && (
           <Link href="/teams/new" className="btn-primary flex items-center gap-2">
@@ -41,32 +43,32 @@ export default async function TeamsPage() {
       )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {teams?.map((t: any) => (
-          <div key={t.id} className="card group">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                {t.games && (
-                  <p className="text-xs text-accent mb-0.5">{t.games.name}</p>
+        {teams?.map((t: any) => {
+          const color = t.color ?? '#e8322a'
+          return (
+            <Link key={t.id} href={`/teams/${t.id}`} className="card card-hover group block overflow-hidden relative p-0">
+              <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${color}, ${color}44, transparent)` }} />
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-slate-100 group-hover:text-white flex items-center gap-2 flex-wrap">
+                    {t.tag && <span className="font-mono text-sm" style={{ color }}>[{t.tag}]</span>}
+                    {t.name}
+                  </h3>
+                  <Lock size={12} className="text-slate-600 shrink-0 mt-1" />
+                </div>
+                {t.description && (
+                  <p className="text-sm text-slate-400 line-clamp-2 mt-1">{t.description}</p>
                 )}
-                <h3 className="font-semibold text-slate-100">{t.name}</h3>
+                <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <Cake size={11} /> Founded {format(new Date(t.created_at), 'MMM yyyy')}
+                  </span>
+                  <span className="badge" style={{ backgroundColor: `${color}1f`, color }}>Cross-sim</span>
+                </div>
               </div>
-              <Lock size={12} className="text-slate-600 shrink-0 mt-1" />
-            </div>
-            {t.description && (
-              <p className="text-sm text-slate-400 line-clamp-2 mt-1">{t.description}</p>
-            )}
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-xs text-slate-500">
-                {t.team_members?.length ?? 0} member{t.team_members?.length !== 1 ? 's' : ''}
-              </span>
-              {user && (
-                <Link href={`/teams/${t.id}`} className="text-xs text-accent hover:underline">
-                  View â†’
-                </Link>
-              )}
-            </div>
-          </div>
-        ))}
+            </Link>
+          )
+        })}
       </div>
 
       {!teams?.length && (

@@ -48,15 +48,26 @@ create table if not exists public.srh_event_rsvps (
   unique(event_id, user_id)
 );
 
--- TEAMS
+-- TEAMS (cross-sim: not tied to any game)
 create table if not exists public.srh_teams (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  tag text check (tag is null or char_length(tag) between 2 and 4),
+  color text not null default '#e8322a',
   description text,
-  game_id uuid references public.srh_games(id) on delete set null,
   invite_code text unique not null,
   created_by uuid references auth.users(id) on delete cascade not null,
   announcements text,
+  created_at timestamptz default now() not null
+);
+
+-- TEAM RANKS (custom ranks / driver roles, managed by owners)
+create table if not exists public.srh_team_ranks (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid references public.srh_teams(id) on delete cascade not null,
+  name text not null check (char_length(name) between 1 and 30),
+  color text not null default '#94a3b8',
+  position integer not null default 0,
   created_at timestamptz default now() not null
 );
 
@@ -66,6 +77,7 @@ create table if not exists public.srh_team_members (
   team_id uuid references public.srh_teams(id) on delete cascade not null,
   user_id uuid references auth.users(id) on delete cascade not null,
   role text not null default 'member' check (role in ('owner', 'member')),
+  rank_id uuid references public.srh_team_ranks(id) on delete set null,
   joined_at timestamptz default now() not null,
   unique(team_id, user_id)
 );
@@ -103,6 +115,7 @@ alter table public.srh_events enable row level security;
 alter table public.srh_event_rsvps enable row level security;
 alter table public.srh_teams enable row level security;
 alter table public.srh_team_members enable row level security;
+alter table public.srh_team_ranks enable row level security;
 alter table public.srh_game_updates enable row level security;
 alter table public.srh_update_ratings enable row level security;
 
@@ -125,26 +138,54 @@ create policy "srh_rsvps_select_all" on public.srh_event_rsvps for select using 
 create policy "srh_rsvps_insert_auth" on public.srh_event_rsvps for insert with check (auth.uid() = user_id);
 create policy "srh_rsvps_delete_own" on public.srh_event_rsvps for delete using (auth.uid() = user_id);
 
+-- SECURITY DEFINER helpers (avoid RLS self-recursion on srh_team_members)
+create or replace function public.srh_is_team_member(t uuid)
+returns boolean language sql security definer stable set search_path = public as
+$fn$ select exists (select 1 from public.srh_team_members where team_id = t and user_id = auth.uid()) $fn$;
+
+create or replace function public.srh_is_team_owner(t uuid)
+returns boolean language sql security definer stable set search_path = public as
+$fn$ select exists (select 1 from public.srh_team_members where team_id = t and user_id = auth.uid() and role = 'owner') $fn$;
+
 -- TEAMS
 create policy "srh_teams_select_all" on public.srh_teams for select using (true);
 create policy "srh_teams_insert_auth" on public.srh_teams for insert with check (auth.uid() = created_by);
-create policy "srh_teams_update_owner" on public.srh_teams for update using (
-  exists (select 1 from public.srh_team_members where team_id = id and user_id = auth.uid() and role = 'owner')
-);
+create policy "srh_teams_update_owner" on public.srh_teams for update using (public.srh_is_team_owner(id));
 create policy "srh_teams_delete_owner" on public.srh_teams for delete using (auth.uid() = created_by);
 
 -- TEAM MEMBERS
-create policy "srh_team_members_select_member" on public.srh_team_members for select using (
-  exists (select 1 from public.srh_team_members tm where tm.team_id = team_id and tm.user_id = auth.uid())
-);
+create policy "srh_team_members_select_member" on public.srh_team_members for select using (public.srh_is_team_member(team_id));
 create policy "srh_team_members_insert_any" on public.srh_team_members for insert with check (auth.uid() = user_id);
-create policy "srh_team_members_update_owner" on public.srh_team_members for update using (
-  exists (select 1 from public.srh_team_members tm where tm.team_id = team_id and tm.user_id = auth.uid() and tm.role = 'owner')
-);
+create policy "srh_team_members_update_owner" on public.srh_team_members for update using (public.srh_is_team_owner(team_id));
 create policy "srh_team_members_delete_owner_or_self" on public.srh_team_members for delete using (
-  auth.uid() = user_id or
-  exists (select 1 from public.srh_team_members tm where tm.team_id = team_id and tm.user_id = auth.uid() and tm.role = 'owner')
+  auth.uid() = user_id or public.srh_is_team_owner(team_id)
 );
+
+-- TEAM RANKS
+create policy "srh_team_ranks_select_member" on public.srh_team_ranks for select using (public.srh_is_team_member(team_id));
+create policy "srh_team_ranks_insert_owner" on public.srh_team_ranks for insert with check (public.srh_is_team_owner(team_id));
+create policy "srh_team_ranks_update_owner" on public.srh_team_ranks for update using (public.srh_is_team_owner(team_id));
+create policy "srh_team_ranks_delete_owner" on public.srh_team_ranks for delete using (public.srh_is_team_owner(team_id));
+
+-- AUTO-OWNER TRIGGER: team creator becomes owner + default ranks are seeded
+create or replace function public.srh_team_on_create()
+returns trigger language plpgsql security definer set search_path = public as $fn$
+begin
+  insert into public.srh_team_members (team_id, user_id, role)
+  values (new.id, new.created_by, 'owner')
+  on conflict (team_id, user_id) do update set role = 'owner';
+
+  insert into public.srh_team_ranks (team_id, name, color, position) values
+    (new.id, 'Team Principal', '#f59e0b', 0),
+    (new.id, 'Race Driver', '#3b82f6', 1),
+    (new.id, 'Reserve Driver', '#94a3b8', 2);
+  return new;
+end $fn$;
+
+drop trigger if exists srh_team_auto_owner on public.srh_teams;
+create trigger srh_team_auto_owner
+  after insert on public.srh_teams
+  for each row execute function public.srh_team_on_create();
 
 -- GAME UPDATES
 create policy "srh_updates_select_all" on public.srh_game_updates for select using (true);

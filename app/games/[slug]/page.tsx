@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Users, Star, Plus, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
+import { gameTheme } from '@/lib/games'
 
 interface Props {
   params: { slug: string }
@@ -27,19 +28,13 @@ export default async function GamePage({ params }: Props) {
 
   const now = new Date().toISOString()
 
-  const [{ data: events }, { data: teams }, { data: updates }] = await Promise.all([
+  const [{ data: events }, { data: updates }] = await Promise.all([
     supabase
       .from('srh_events')
       .select('id, title, event_date, platform')
       .eq('game_id', game.id)
       .gte('event_date', now)
       .order('event_date', { ascending: true })
-      .limit(5),
-    supabase
-      .from('srh_teams')
-      .select('id, name, description')
-      .eq('game_id', game.id)
-      .order('created_at', { ascending: false })
       .limit(5),
     supabase
       .from('srh_game_updates')
@@ -57,15 +52,21 @@ export default async function GamePage({ params }: Props) {
     return (ratings.reduce((s, r) => s + r.rating, 0) / ratings.length).toFixed(1)
   }
 
+  const theme = gameTheme(params.slug)
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="card bg-gradient-to-r from-accent/10 to-surface-1">
-        <div className="flex items-start justify-between">
+      <div className={`card relative overflow-hidden bg-gradient-to-r ${theme.gradient}`}>
+        <div className="absolute inset-0 checkered opacity-40" />
+        <div className="relative flex items-center gap-5">
+          <span className={`flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl ${theme.solid} text-white font-bold text-lg sm:text-xl shrink-0 shadow-xl ${theme.glow}`}>
+            {theme.monogram}
+          </span>
           <div>
             <h1 className="text-3xl font-bold text-slate-100">{game.name}</h1>
             {game.description && (
-              <p className="text-slate-400 mt-2 max-w-2xl">{game.description}</p>
+              <p className="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">{game.description}</p>
             )}
             <div className="flex gap-2 mt-3">
               <span className="badge bg-surface-3 text-slate-300">{game.platform}</span>
@@ -74,7 +75,7 @@ export default async function GamePage({ params }: Props) {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Events */}
         <section className="lg:col-span-1">
           <div className="flex items-center justify-between mb-3">
@@ -105,33 +106,6 @@ export default async function GamePage({ params }: Props) {
               View all events →
             </Link>
           )}
-        </section>
-
-        {/* Teams */}
-        <section className="lg:col-span-1">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="flex items-center gap-2 font-semibold text-slate-100">
-              <Users size={16} className="text-accent" /> Teams
-            </h2>
-            <Link href={`/teams/new?game=${game.id}`} className="btn-ghost text-xs flex items-center gap-1">
-              <Plus size={12} /> Create
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {teams && teams.length > 0 ? teams.map((t: any) => (
-              <Link key={t.id} href={`/teams/${t.id}`} className="card hover:border-accent/30 transition-all block group p-3">
-                <p className="text-sm font-medium text-slate-100 group-hover:text-white">{t.name}</p>
-                {t.description && (
-                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{t.description}</p>
-                )}
-              </Link>
-            )) : (
-              <div className="card text-center text-slate-500 text-sm py-6">
-                No teams yet.{' '}
-                <Link href={`/teams/new?game=${game.id}`} className="text-accent hover:underline">Start one</Link>
-              </div>
-            )}
-          </div>
         </section>
 
         {/* Updates & Ratings */}

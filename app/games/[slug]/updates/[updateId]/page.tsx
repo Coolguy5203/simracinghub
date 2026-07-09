@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Star } from 'lucide-react'
 import { format } from 'date-fns'
 import { RatingForm } from '@/components/RatingForm'
+import { Avatar } from '@/components/Avatar'
+import { gameTheme } from '@/lib/games'
 
 interface Props { params: { slug: string; updateId: string } }
 
@@ -39,9 +41,17 @@ export default async function UpdateDetailPage({ params }: Props) {
     userRating = data
   }
 
-  const avgRating = ratings && ratings.length > 0
-    ? (ratings.reduce((s, r) => s + r.rating, 0) / ratings.length).toFixed(1)
+  const count = ratings?.length ?? 0
+  const avgRating = count > 0
+    ? (ratings!.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
     : null
+
+  const dist = [5, 4, 3, 2, 1].map(star => ({
+    star,
+    n: (ratings ?? []).filter(r => r.rating === star).length,
+  }))
+
+  const theme = gameTheme(params.slug)
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -49,29 +59,48 @@ export default async function UpdateDetailPage({ params }: Props) {
         <Link href={`/games/${params.slug}/updates`} className="text-sm text-slate-500 hover:text-slate-300">
           ← Back to updates
         </Link>
-        <div className="card mt-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs text-slate-500 mb-1">{game.name}</p>
+        <div className={`card mt-3 bg-gradient-to-br ${theme.gradient}`}>
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-medium mb-1 ${theme.text}`}>{game.name}</p>
               <h1 className="text-2xl font-bold text-slate-100">{update.version}</h1>
               <p className="text-sm text-slate-400 mt-1">
                 Released {format(new Date(update.release_date), 'MMMM d, yyyy')}
               </p>
               {update.summary && <p className="text-slate-300 mt-3">{update.summary}</p>}
             </div>
-            <div className="text-right ml-6 shrink-0">
+            <div className="text-right shrink-0">
               {avgRating ? (
                 <>
-                  <div className="flex items-center gap-1 text-yellow-400 text-3xl font-bold">
+                  <div className="flex items-center gap-1 text-yellow-400 text-3xl font-bold justify-end">
                     <Star size={24} fill="currentColor" /> {avgRating}
                   </div>
-                  <p className="text-xs text-slate-500">{ratings?.length} review{ratings?.length !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{count} review{count !== 1 ? 's' : ''}</p>
                 </>
               ) : (
                 <p className="text-slate-500 text-sm">No ratings yet</p>
               )}
             </div>
           </div>
+
+          {/* Rating distribution */}
+          {count > 0 && (
+            <div className="mt-5 pt-4 border-t border-border/50 space-y-1.5 max-w-sm">
+              {dist.map(({ star, n }) => (
+                <div key={star} className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500 w-3 text-right">{star}</span>
+                  <Star size={10} className="text-yellow-400" fill="currentColor" />
+                  <div className="flex-1 h-2 bg-surface-3 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full transition-all"
+                      style={{ width: `${(n / count) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-slate-500 w-6">{n}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -95,9 +124,14 @@ export default async function UpdateDetailPage({ params }: Props) {
           {ratings && ratings.length > 0 ? ratings.map((r: any) => (
             <div key={r.id} className="card">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-slate-200 text-sm">{r.profiles?.username}</span>
+                <Link href={`/u/${r.profiles?.username}`} className="flex items-center gap-2 group">
+                  <Avatar username={r.profiles?.username ?? '??'} size="sm" />
+                  <span className="font-medium text-slate-200 text-sm group-hover:text-accent transition-colors">
+                    {r.profiles?.username}
+                  </span>
+                </Link>
                 <div className="flex items-center gap-0.5">
-                  {[1,2,3,4,5].map(i => (
+                  {[1, 2, 3, 4, 5].map(i => (
                     <Star key={i} size={12} className={i <= r.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'} />
                   ))}
                 </div>

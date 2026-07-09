@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { TeamEditForm } from '@/components/TeamEditForm'
+import { RankManager } from '@/components/RankManager'
 
 interface Props { params: { id: string } }
 
@@ -23,12 +24,17 @@ export default async function EditTeamPage({ params }: Props) {
   const { data: team } = await supabase.from('srh_teams').select('*').eq('id', params.id).single()
   if (!team) notFound()
 
-  const { data: games } = await supabase.from('srh_games').select('id, name').order('name')
+  const { data: ranks } = await supabase
+    .from('srh_team_ranks')
+    .select('id, name, color, position')
+    .eq('team_id', params.id)
+    .order('position', { ascending: true })
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-100 mb-6">Edit Team</h1>
-      <TeamEditForm team={team} games={games ?? []} />
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-slate-100">Edit Team</h1>
+      <TeamEditForm team={team} />
+      <RankManager teamId={params.id} ranks={ranks ?? []} />
     </div>
   )
 }
