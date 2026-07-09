@@ -167,7 +167,7 @@ export default async function TeamPage({ params }: Props) {
                   joined {formatDistanceToNow(new Date(m.joined_at), { addSuffix: true })}
                 </span>
               </div>
-              {isOwner && m.user_id !== user?.id && (
+              {isOwner && (
                 <TeamManagePanel
                   memberId={m.id}
                   teamId={params.id}
@@ -175,6 +175,7 @@ export default async function TeamPage({ params }: Props) {
                   currentRole={m.role}
                   currentRankId={m.rank_id}
                   ranks={ranks ?? []}
+                  rankOnly={m.user_id === user?.id}
                 />
               )}
             </div>

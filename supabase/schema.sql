@@ -196,3 +196,33 @@ create policy "srh_ratings_select_all" on public.srh_update_ratings for select u
 create policy "srh_ratings_insert_auth" on public.srh_update_ratings for insert with check (auth.uid() = user_id);
 create policy "srh_ratings_update_own" on public.srh_update_ratings for update using (auth.uid() = user_id);
 create policy "srh_ratings_delete_own" on public.srh_update_ratings for delete using (auth.uid() = user_id);
+
+-- =============================================
+-- PROFILE FOREIGN KEYS (required for PostgREST embeds)
+-- PostgREST can only resolve profiles:srh_profiles(...) joins when an FK
+-- exists to srh_profiles; the auth.users FKs alone are not visible to it.
+-- =============================================
+
+alter table public.srh_events
+  add constraint srh_events_created_by_profile_fkey
+  foreign key (created_by) references public.srh_profiles(id) on delete cascade;
+
+alter table public.srh_event_rsvps
+  add constraint srh_event_rsvps_user_id_profile_fkey
+  foreign key (user_id) references public.srh_profiles(id) on delete cascade;
+
+alter table public.srh_teams
+  add constraint srh_teams_created_by_profile_fkey
+  foreign key (created_by) references public.srh_profiles(id) on delete cascade;
+
+alter table public.srh_team_members
+  add constraint srh_team_members_user_id_profile_fkey
+  foreign key (user_id) references public.srh_profiles(id) on delete cascade;
+
+alter table public.srh_game_updates
+  add constraint srh_game_updates_added_by_profile_fkey
+  foreign key (added_by) references public.srh_profiles(id) on delete cascade;
+
+alter table public.srh_update_ratings
+  add constraint srh_update_ratings_user_id_profile_fkey
+  foreign key (user_id) references public.srh_profiles(id) on delete cascade;

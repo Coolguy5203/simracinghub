@@ -13,9 +13,10 @@ interface Props {
   currentRole: string
   currentRankId: string | null
   ranks: Rank[]
+  rankOnly?: boolean // own row: allow rank changes but not remove/demote
 }
 
-export function TeamManagePanel({ memberId, teamId, username, currentRole, currentRankId, ranks }: Props) {
+export function TeamManagePanel({ memberId, teamId, username, currentRole, currentRankId, ranks, rankOnly = false }: Props) {
   const [open, setOpen] = useState(false)
   const [rankOpen, setRankOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -87,19 +88,23 @@ export function TeamManagePanel({ memberId, teamId, username, currentRole, curre
                 </button>
               </div>
             )}
-            <button
-              onClick={toggleRole}
-              className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-surface-3 flex items-center gap-2"
-            >
-              <ShieldCheck size={13} />
-              {currentRole === 'owner' ? 'Make member' : 'Make owner'}
-            </button>
-            <button
-              onClick={remove}
-              className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-surface-3 flex items-center gap-2"
-            >
-              <UserMinus size={13} /> Remove
-            </button>
+            {!rankOnly && (
+              <>
+                <button
+                  onClick={toggleRole}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-surface-3 flex items-center gap-2"
+                >
+                  <ShieldCheck size={13} />
+                  {currentRole === 'owner' ? 'Make member' : 'Make owner'}
+                </button>
+                <button
+                  onClick={remove}
+                  className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-surface-3 flex items-center gap-2"
+                >
+                  <UserMinus size={13} /> Remove
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
