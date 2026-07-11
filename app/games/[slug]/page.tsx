@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Users, Star, Plus, ChevronRight } from 'lucide-react'
+import { Calendar, Users, Star, Plus, ChevronRight, Zap } from 'lucide-react'
 import { format } from 'date-fns'
 import { gameTheme } from '@/lib/games'
 
@@ -120,22 +120,38 @@ export default async function GamePage({ params }: Props) {
             <Link href={`/games/${params.slug}/updates`} className="btn-ghost text-xs">View all</Link>
           </div>
           <div className="space-y-2">
-            {updates && updates.length > 0 ? updates.map((u: any) => {
+            {updates && updates.length > 0 ? updates.map((u: any, i: number) => {
               const avg = avgRating(u.update_ratings ?? [])
+              const isLatest = i === 0
               return (
-                <Link key={u.id} href={`/games/${params.slug}/updates/${u.id}`} className="card hover:border-accent/30 transition-all block group p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-100 group-hover:text-white">{u.version}</p>
+                <Link
+                  key={u.id}
+                  href={`/games/${params.slug}/updates/${u.id}`}
+                  className={`card card-hover block group p-3 ${isLatest ? 'border-accent/30 bg-gradient-to-r from-accent/5 to-transparent' : ''}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <p className="text-sm font-semibold text-slate-100 group-hover:text-white truncate">{u.version}</p>
+                      {isLatest && (
+                        <span className="badge-accent text-[10px] shrink-0 flex items-center gap-1">
+                          <Zap size={9} /> Latest
+                        </span>
+                      )}
+                    </div>
                     {avg && (
-                      <span className="flex items-center gap-0.5 text-xs text-yellow-400">
-                        <Star size={11} fill="currentColor" /> {avg}
-                      </span>
+                      <div className="flex items-center gap-1 bg-yellow-400/10 border border-yellow-400/20 rounded px-1.5 py-0.5 shrink-0">
+                        <Star size={10} className="text-yellow-400" fill="currentColor" />
+                        <span className="text-yellow-400 text-xs font-bold">{avg}</span>
+                      </div>
                     )}
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
                     {format(new Date(u.release_date), 'MMM d, yyyy')}
                     {u.update_ratings?.length > 0 && ` · ${u.update_ratings.length} review${u.update_ratings.length !== 1 ? 's' : ''}`}
                   </p>
+                  {isLatest && u.summary && (
+                    <p className="text-xs text-slate-400 mt-1.5 line-clamp-2">{u.summary}</p>
+                  )}
                 </Link>
               )
             }) : (

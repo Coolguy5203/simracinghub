@@ -81,23 +81,28 @@ export function Navbar() {
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+        'relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
         pathname === href
-          ? 'bg-surface-2 text-slate-100'
+          ? 'text-slate-100'
           : 'text-slate-400 hover:text-slate-200 hover:bg-surface-2'
       )}
     >
       {label}
+      {pathname === href && (
+        <span className="absolute bottom-0.5 left-3 right-3 h-0.5 rounded-full bg-accent" />
+      )}
     </Link>
   )
 
   return (
-    <header className="sticky top-0 z-50 bg-surface-1/95 backdrop-blur border-b border-border">
+    <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <Flag className="text-accent" size={20} />
+          <Link href="/" className="flex items-center gap-2.5 font-bold text-lg group">
+            <div className="w-7 h-7 rounded-lg bg-accent/15 border border-accent/25 flex items-center justify-center group-hover:bg-accent/25 transition-colors">
+              <Flag className="text-accent" size={14} />
+            </div>
             <span className="text-slate-100">SimRacer <span className="text-accent">Hub</span></span>
           </Link>
 

@@ -41,14 +41,16 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-accent hover:bg-accent-hover text-white font-semibold px-4 py-2 rounded-lg
+    @apply relative bg-gradient-to-b from-[#f03d35] to-accent hover:from-[#f54940] hover:to-accent-hover
+           text-white font-semibold px-4 py-2 rounded-lg
            transition-all disabled:opacity-50 disabled:cursor-not-allowed
-           hover:shadow-lg hover:shadow-accent/25 active:scale-[0.98];
+           shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/35
+           active:scale-[0.97] active:shadow-sm;
   }
 
   .btn-secondary {
     @apply bg-surface-2 hover:bg-surface-3 text-slate-200 font-semibold px-4 py-2 rounded-lg
-           border border-border transition-all active:scale-[0.98];
+           border border-border hover:border-slate-500 transition-all active:scale-[0.97];
   }
 
   .btn-ghost {
@@ -56,35 +58,53 @@
   }
 
   .card {
-    @apply bg-surface-1 border border-border rounded-xl p-5;
+    @apply bg-surface-1 border border-border rounded-xl p-5
+           shadow-sm shadow-black/20;
   }
 
   .card-hover {
-    @apply hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30 transition-all duration-200;
+    @apply hover:border-accent/30 hover:-translate-y-px
+           hover:shadow-lg hover:shadow-black/40
+           hover:bg-surface-1
+           transition-all duration-200;
+  }
+
+  /* Glass card — for hero panels and overlays */
+  .glass {
+    @apply bg-surface-2/50 backdrop-blur-sm border border-white/5 rounded-xl;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold tracking-wide;
+  }
+
+  .badge-accent {
+    @apply badge bg-accent/15 text-accent border border-accent/25;
   }
 
   .section-title {
-    @apply text-lg font-semibold text-slate-100 mb-4;
+    @apply text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2;
+  }
+
+  .section-title::before {
+    content: '';
+    @apply block w-1 h-5 rounded-full bg-accent shrink-0;
   }
 
   .label {
     @apply block text-sm font-medium text-slate-400 mb-1;
   }
 
-  /* Checkered flag texture — used behind the hero */
+  /* Checkered flag texture */
   .checkered {
     background-image:
-      linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 75%),
-      linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 75%);
-    background-size: 32px 32px;
-    background-position: 0 0, 16px 16px;
+      linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.025) 75%),
+      linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.025) 75%);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
   }
 
-  /* Skeleton shimmer for loading states */
+  /* Skeleton shimmer */
   .skeleton {
     @apply rounded-lg bg-surface-2;
     background-image: linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
@@ -95,8 +115,13 @@
 
   /* Racing stripe divider */
   .stripe {
-    @apply h-1 rounded-full;
-    background: repeating-linear-gradient(-45deg, #e8322a 0 10px, transparent 10px 20px);
-    opacity: 0.6;
+    @apply h-px rounded-full;
+    background: linear-gradient(90deg, transparent, rgba(232,50,42,0.6) 30%, rgba(232,50,42,0.6) 70%, transparent);
+  }
+
+  /* Glow dot — for live / accent indicators */
+  .glow-dot {
+    @apply w-2 h-2 rounded-full bg-accent shrink-0;
+    box-shadow: 0 0 6px 1px rgba(232,50,42,0.7);
   }
 }
