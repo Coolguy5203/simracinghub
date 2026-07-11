@@ -24,7 +24,7 @@ export default async function TeamsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
             <Users className="text-accent" size={24} /> Teams
@@ -34,7 +34,7 @@ export default async function TeamsPage() {
           </p>
         </div>
         {user && (
-          <Link href="/teams/new" className="btn-primary flex items-center gap-2">
+          <Link href="/teams/new" className="btn-primary flex items-center gap-2 self-start sm:self-auto shrink-0">
             <Plus size={16} /> Create Team
           </Link>
         )}

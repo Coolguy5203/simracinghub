@@ -46,14 +46,14 @@ export default async function EventsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
             <Calendar className="text-accent" size={24} /> {showPast ? 'Past Events' : 'Upcoming Events'}
           </h1>
           <p className="text-slate-400 text-sm mt-1">Find races and community events across all titles</p>
         </div>
-        <Link href="/events/new" className="btn-primary flex items-center gap-2">
+        <Link href="/events/new" className="btn-primary flex items-center gap-2 self-start sm:self-auto">
           <Plus size={16} /> Post Event
         </Link>
       </div>
