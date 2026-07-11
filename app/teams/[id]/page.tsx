@@ -6,6 +6,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { TeamManagePanel } from '@/components/TeamManagePanel'
 import { RegenerateInviteButton } from '@/components/RegenerateInviteButton'
 import { Avatar } from '@/components/Avatar'
+import { TeamMessages } from '@/components/TeamMessages'
 
 interface Props { params: { id: string } }
 
@@ -57,7 +58,7 @@ export default async function TeamPage({ params }: Props) {
     )
   }
 
-  const [{ data: members }, { data: ranks }] = await Promise.all([
+  const [{ data: members }, { data: ranks }, { data: messages }] = await Promise.all([
     supabase
       .from('srh_team_members')
       .select('id, role, joined_at, user_id, rank_id, profiles:srh_profiles(username), rank:srh_team_ranks(id, name, color, position)')
@@ -68,6 +69,12 @@ export default async function TeamPage({ params }: Props) {
       .select('id, name, color, position')
       .eq('team_id', params.id)
       .order('position', { ascending: true }),
+    supabase
+      .from('srh_team_messages')
+      .select('id, user_id, body, created_at, profiles:srh_profiles(username)')
+      .eq('team_id', params.id)
+      .order('created_at', { ascending: false })
+      .limit(50),
   ])
 
   const isOwner = membership.role === 'owner'
@@ -182,6 +189,17 @@ export default async function TeamPage({ params }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Team Radio — private message board */}
+      {user && (
+        <TeamMessages
+          teamId={params.id}
+          messages={(messages as any) ?? []}
+          userId={user.id}
+          isOwner={isOwner}
+          teamColor={teamColor}
+        />
+      )}
 
       {/* Owner settings */}
       {isOwner && (

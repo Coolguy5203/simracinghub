@@ -7,6 +7,7 @@ import { RSVPButton } from '@/components/RSVPButton'
 import { DeleteEventButton } from '@/components/DeleteEventButton'
 import { Countdown } from '@/components/Countdown'
 import { Avatar } from '@/components/Avatar'
+import { EventComments } from '@/components/EventComments'
 import { gameTheme } from '@/lib/games'
 
 interface Props { params: { id: string } }
@@ -36,10 +37,17 @@ export default async function EventDetailPage({ params }: Props) {
 
   if (!event) notFound()
 
-  const { data: rsvps } = await supabase
-    .from('srh_event_rsvps')
-    .select('id, user_id, profiles:srh_profiles(username)')
-    .eq('event_id', params.id)
+  const [{ data: rsvps }, { data: comments }] = await Promise.all([
+    supabase
+      .from('srh_event_rsvps')
+      .select('id, user_id, profiles:srh_profiles(username)')
+      .eq('event_id', params.id),
+    supabase
+      .from('srh_event_comments')
+      .select('id, user_id, body, created_at, profiles:srh_profiles(username)')
+      .eq('event_id', params.id)
+      .order('created_at', { ascending: true }),
+  ])
 
   const userRsvp = rsvps?.find((r: any) => r.user_id === user?.id)
   const isFull = event.max_participants != null && (rsvps?.length ?? 0) >= event.max_participants
@@ -164,6 +172,14 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      {/* Discussion */}
+      <EventComments
+        eventId={event.id}
+        comments={(comments as any) ?? []}
+        userId={user?.id ?? null}
+        isHost={event.created_by === user?.id}
+      />
     </div>
   )
 }

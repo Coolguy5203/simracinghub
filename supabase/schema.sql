@@ -246,3 +246,56 @@ language sql stable security definer set search_path = public as
 $$ select team_id, count(*) from public.srh_team_members group by team_id $$;
 
 grant execute on function public.srh_team_member_counts() to anon, authenticated;
+
+-- =============================================
+-- COMMUNITY FEATURES (July 2026): discussion, team radio, rig specs
+-- =============================================
+
+-- EVENT DISCUSSION
+create table if not exists public.srh_event_comments (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid references public.srh_events(id) on delete cascade not null,
+  user_id uuid references public.srh_profiles(id) on delete cascade not null,
+  body text not null check (char_length(body) between 1 and 1000),
+  created_at timestamptz default now() not null
+);
+
+alter table public.srh_event_comments enable row level security;
+
+create policy "srh_comments_select_all" on public.srh_event_comments
+  for select using (true);
+create policy "srh_comments_insert_own" on public.srh_event_comments
+  for insert with check (auth.uid() = user_id);
+create policy "srh_comments_delete_own_or_host" on public.srh_event_comments
+  for delete using (
+    auth.uid() = user_id
+    or exists (select 1 from public.srh_events e where e.id = event_id and e.created_by = auth.uid())
+  );
+
+create index if not exists srh_event_comments_event_idx on public.srh_event_comments(event_id, created_at);
+
+-- TEAM RADIO (private, members only)
+create table if not exists public.srh_team_messages (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid references public.srh_teams(id) on delete cascade not null,
+  user_id uuid references public.srh_profiles(id) on delete cascade not null,
+  body text not null check (char_length(body) between 1 and 2000),
+  created_at timestamptz default now() not null
+);
+
+alter table public.srh_team_messages enable row level security;
+
+create policy "srh_messages_select_member" on public.srh_team_messages
+  for select using (public.srh_is_team_member(team_id));
+create policy "srh_messages_insert_member" on public.srh_team_messages
+  for insert with check (auth.uid() = user_id and public.srh_is_team_member(team_id));
+create policy "srh_messages_delete_own_or_owner" on public.srh_team_messages
+  for delete using (auth.uid() = user_id or public.srh_is_team_owner(team_id));
+
+create index if not exists srh_team_messages_team_idx on public.srh_team_messages(team_id, created_at desc);
+
+-- RIG SPECS + FAVORITE SIM
+alter table public.srh_profiles add column if not exists wheel text;
+alter table public.srh_profiles add column if not exists pedals text;
+alter table public.srh_profiles add column if not exists cockpit text;
+alter table public.srh_profiles add column if not exists favorite_game_id uuid references public.srh_games(id) on delete set null;

@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Star, Flag, Gauge, Settings } from 'lucide-react'
+import { Calendar, Star, Flag, Gauge, Settings, LifeBuoy, Footprints, Armchair } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { Avatar } from '@/components/Avatar'
+import { gameTheme } from '@/lib/games'
 
 interface Props { params: { username: string } }
 
@@ -17,11 +18,14 @@ export default async function ProfilePage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from('srh_profiles')
-    .select('id, username, bio, created_at')
+    .select('id, username, bio, created_at, wheel, pedals, cockpit, favorite_game:srh_games(name, slug)')
     .eq('username', params.username)
     .single()
 
   if (!profile) notFound()
+
+  const favoriteGame = profile.favorite_game as unknown as { name: string; slug: string } | null
+  const hasRig = profile.wheel || profile.pedals || profile.cockpit
 
   const isOwnProfile = user?.id === profile.id
   const now = new Date().toISOString()
@@ -76,8 +80,16 @@ export default async function ProfilePage({ params }: Props) {
               {profile.username}
               <Flag size={16} className="text-accent" />
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-2 flex-wrap">
               Racing since {format(new Date(profile.created_at), 'MMMM yyyy')}
+              {favoriteGame && (
+                <Link
+                  href={`/games/${favoriteGame.slug}`}
+                  className={`badge bg-surface-3 hover:bg-surface-2 transition-colors ${gameTheme(favoriteGame.slug).text}`}
+                >
+                  ★ {favoriteGame.name}
+                </Link>
+              )}
             </p>
             {profile.bio && <p className="text-slate-300 mt-2 text-sm">{profile.bio}</p>}
           </div>
@@ -99,6 +111,44 @@ export default async function ProfilePage({ params }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Rig */}
+      {hasRig && (
+        <div className="card">
+          <h2 className="section-title flex items-center gap-2">
+            <Gauge size={16} className="text-accent" /> The Rig
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {profile.wheel && (
+              <div className="flex items-center gap-3 bg-surface-2 rounded-lg px-3 py-2.5">
+                <LifeBuoy size={18} className="text-accent shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Wheel</p>
+                  <p className="text-sm text-slate-200 font-medium truncate">{profile.wheel}</p>
+                </div>
+              </div>
+            )}
+            {profile.pedals && (
+              <div className="flex items-center gap-3 bg-surface-2 rounded-lg px-3 py-2.5">
+                <Footprints size={18} className="text-accent shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Pedals</p>
+                  <p className="text-sm text-slate-200 font-medium truncate">{profile.pedals}</p>
+                </div>
+              </div>
+            )}
+            {profile.cockpit && (
+              <div className="flex items-center gap-3 bg-surface-2 rounded-lg px-3 py-2.5">
+                <Armchair size={18} className="text-accent shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Cockpit</p>
+                  <p className="text-sm text-slate-200 font-medium truncate">{profile.cockpit}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Upcoming races */}
       {attending && attending.length > 0 && (

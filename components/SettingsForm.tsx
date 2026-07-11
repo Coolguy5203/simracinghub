@@ -11,10 +11,19 @@ interface Props {
   userId: string
   username: string
   initialBio: string
+  initialWheel: string
+  initialPedals: string
+  initialCockpit: string
+  initialFavoriteGameId: string
+  games: { id: string; name: string }[]
 }
 
-export function SettingsForm({ userId, username, initialBio }: Props) {
+export function SettingsForm({ userId, username, initialBio, initialWheel, initialPedals, initialCockpit, initialFavoriteGameId, games }: Props) {
   const [bio, setBio] = useState(initialBio)
+  const [wheel, setWheel] = useState(initialWheel)
+  const [pedals, setPedals] = useState(initialPedals)
+  const [cockpit, setCockpit] = useState(initialCockpit)
+  const [favoriteGameId, setFavoriteGameId] = useState(initialFavoriteGameId)
   const [bioStatus, setBioStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   const [newPassword, setNewPassword] = useState('')
@@ -30,7 +39,13 @@ export function SettingsForm({ userId, username, initialBio }: Props) {
     setBioStatus('saving')
     const { error } = await supabase
       .from('srh_profiles')
-      .update({ bio: bio.trim() || null })
+      .update({
+        bio: bio.trim() || null,
+        wheel: wheel.trim() || null,
+        pedals: pedals.trim() || null,
+        cockpit: cockpit.trim() || null,
+        favorite_game_id: favoriteGameId || null,
+      })
       .eq('id', userId)
     setBioStatus(error ? 'error' : 'saved')
     if (!error) {
@@ -92,6 +107,55 @@ export function SettingsForm({ userId, username, initialBio }: Props) {
             placeholder="Tell other racers about yourself — favorite sims, series, setups…"
           />
           <p className="text-xs text-slate-600 mt-1 text-right">{bio.length}/280</p>
+        </div>
+
+        <div>
+          <label className="label">Favorite sim</label>
+          <select value={favoriteGameId} onChange={e => setFavoriteGameId(e.target.value)} className="w-full">
+            <option value="">— none —</option>
+            {games.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="pt-2 border-t border-border">
+          <p className="text-sm font-medium text-slate-300 mb-3">Your rig</p>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <label className="label">Wheel</label>
+              <input
+                type="text"
+                value={wheel}
+                onChange={e => setWheel(e.target.value)}
+                maxLength={60}
+                className="w-full"
+                placeholder="Fanatec CSL DD"
+              />
+            </div>
+            <div>
+              <label className="label">Pedals</label>
+              <input
+                type="text"
+                value={pedals}
+                onChange={e => setPedals(e.target.value)}
+                maxLength={60}
+                className="w-full"
+                placeholder="CSL Elite LC"
+              />
+            </div>
+            <div>
+              <label className="label">Cockpit</label>
+              <input
+                type="text"
+                value={cockpit}
+                onChange={e => setCockpit(e.target.value)}
+                maxLength={60}
+                className="w-full"
+                placeholder="Playseat Trophy"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
