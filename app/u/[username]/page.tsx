@@ -41,7 +41,11 @@ export default async function ProfilePage({ params }: Props) {
       .select('id, events:srh_events!inner(id, title, event_date, platform, games:srh_games(name, slug))')
       .eq('user_id', profile.id)
       .gte('events.event_date', now)
-      .limit(5),
+      .limit(5)
+      .then(res => ({
+        ...res,
+        data: res.data?.sort((a: any, b: any) => a.events.event_date.localeCompare(b.events.event_date)) ?? null,
+      })),
     supabase
       .from('srh_update_ratings')
       .select('id, rating, review, created_at, updates:srh_game_updates(id, version, game_id, games:srh_games(name, slug))')

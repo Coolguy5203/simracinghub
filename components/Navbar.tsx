@@ -125,6 +125,15 @@ export function Navbar() {
                         {g.name}
                       </Link>
                     ))}
+                    <div className="border-t border-border mt-1 pt-1">
+                      <Link
+                        href="/games"
+                        onClick={() => setGamesOpen(false)}
+                        className="block px-4 py-2 text-sm text-accent hover:bg-surface-3 transition-colors"
+                      >
+                        All games →
+                      </Link>
+                    </div>
                   </div>
                 </>
               )}
@@ -206,6 +215,13 @@ export function Navbar() {
               {g.name}
             </Link>
           ))}
+          <Link
+            href="/games"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm text-accent hover:bg-surface-2 rounded-lg"
+          >
+            All games →
+          </Link>
           <div className="pt-2 border-t border-border mt-2 space-y-1">
             <Link href="/events" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-surface-2 rounded-lg">
               <Calendar size={14} /> Events

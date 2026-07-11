@@ -55,16 +55,32 @@ export default function RegisterPage() {
     })
 
     if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Registration failed.')
+      // Auth-level "already registered" means the username's synthetic email exists
+      const msg = signUpError?.message?.includes('already registered')
+        ? 'That username is already taken.'
+        : signUpError?.message ?? 'Registration failed.'
+      setError(msg)
       setLoading(false)
       return
     }
 
-    // Create profile
-    await supabase.from('srh_profiles').insert({
+    // Create profile — without it the account can't post events or join teams,
+    // so treat a failure here as a failed registration
+    const { error: profileError } = await supabase.from('srh_profiles').insert({
       id: data.user.id,
       username,
     })
+
+    if (profileError) {
+      await supabase.auth.signOut()
+      setError(
+        profileError.code === '23505'
+          ? 'That username is already taken.'
+          : 'Could not create your profile — please try again.'
+      )
+      setLoading(false)
+      return
+    }
 
     router.push('/')
     router.refresh()

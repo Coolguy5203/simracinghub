@@ -12,3 +12,9 @@ insert into public.srh_games (name, slug, description, platform) values
   ('EA Sports WRC', 'ea-wrc', 'The official World Rally Championship game built on DiRT Rally DNA. Full WRC calendar, stage degradation, and hardcore rally handling.', 'PC / Console'),
   ('RaceRoom Racing Experience', 'raceroom', 'Free-to-play PC sim featuring ADAC, DTM, and various official championships with outstanding sound design.', 'PC')
 on conflict (slug) do nothing;
+
+-- Legacy titles — still fully usable for events, teams, and update ratings
+insert into public.srh_games (name, slug, description, platform, legacy) values
+  ('F1 24', 'f1-24', 'EA Sports'' 2024 Formula 1 game. My Team career, full 2024 season, and accessible online multiplayer.', 'PC / Console', true),
+  ('F1 25', 'f1-25', 'EA Sports'' 2025 Formula 1 game. Braking Point 3, My Team 2.0, and the final season of the old regulations.', 'PC / Console', true)
+on conflict (slug) do nothing;

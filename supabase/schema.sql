@@ -226,3 +226,23 @@ alter table public.srh_game_updates
 alter table public.srh_update_ratings
   add constraint srh_update_ratings_user_id_profile_fkey
   foreign key (user_id) references public.srh_profiles(id) on delete cascade;
+
+-- =============================================
+-- LEGACY GAMES + HARDENING (July 2026)
+-- =============================================
+
+-- Older titles stay on the hub (flagged legacy) so events/updates can still be logged
+alter table public.srh_games add column if not exists legacy boolean not null default false;
+
+-- Advisor fixes: pin search_path, remove trigger fns from the public RPC surface
+alter function public.srh_auto_confirm_user() set search_path = '';
+revoke execute on function public.srh_auto_confirm_user() from public, anon, authenticated;
+revoke execute on function public.srh_team_on_create() from public, anon, authenticated;
+
+-- Public member counts (RLS hides roster rows from non-members; expose only the aggregate)
+create or replace function public.srh_team_member_counts()
+returns table(team_id uuid, member_count bigint)
+language sql stable security definer set search_path = public as
+$$ select team_id, count(*) from public.srh_team_members group by team_id $$;
+
+grant execute on function public.srh_team_member_counts() to anon, authenticated;

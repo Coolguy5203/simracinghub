@@ -85,6 +85,21 @@ export const GAME_THEMES: Record<string, GameTheme> = {
     solid: 'bg-teal-500',
     glow: 'shadow-teal-500/20',
   },
+  // Legacy titles — muted variants so they read as older games
+  'f1-24': {
+    monogram: 'F1',
+    gradient: 'from-red-900/25 via-red-950/15 to-transparent',
+    text: 'text-red-500/80',
+    solid: 'bg-red-800',
+    glow: 'shadow-red-800/20',
+  },
+  'f1-25': {
+    monogram: 'F1',
+    gradient: 'from-red-800/25 via-red-950/15 to-transparent',
+    text: 'text-red-500/90',
+    solid: 'bg-red-700',
+    glow: 'shadow-red-700/20',
+  },
 }
 
 export const DEFAULT_THEME: GameTheme = {

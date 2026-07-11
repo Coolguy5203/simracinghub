@@ -10,10 +10,17 @@ export default async function TeamsPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: teams } = await supabase
-    .from('srh_teams')
-    .select('id, name, tag, color, description, created_at')
-    .order('created_at', { ascending: false })
+  const [{ data: teams }, { data: counts }] = await Promise.all([
+    supabase
+      .from('srh_teams')
+      .select('id, name, tag, color, description, created_at')
+      .order('created_at', { ascending: false }),
+    // RLS hides roster rows from non-members, so counts come from a hardened aggregate fn
+    supabase.rpc('srh_team_member_counts'),
+  ])
+
+  const memberCount = (teamId: string) =>
+    (counts as any[])?.find(c => c.team_id === teamId)?.member_count ?? 0
 
   return (
     <div className="space-y-6">
@@ -60,8 +67,13 @@ export default async function TeamsPage() {
                   <p className="text-sm text-slate-400 line-clamp-2 mt-1">{t.description}</p>
                 )}
                 <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Cake size={11} /> Founded {format(new Date(t.created_at), 'MMM yyyy')}
+                  <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Cake size={11} /> {format(new Date(t.created_at), 'MMM yyyy')}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users size={11} /> {memberCount(t.id)} driver{memberCount(t.id) !== 1 ? 's' : ''}
+                    </span>
                   </span>
                   <span className="badge" style={{ backgroundColor: `${color}1f`, color }}>Cross-sim</span>
                 </div>

@@ -70,6 +70,9 @@ export default async function GamePage({ params }: Props) {
             )}
             <div className="flex gap-2 mt-3">
               <span className="badge bg-surface-3 text-slate-300">{game.platform}</span>
+              {game.legacy && (
+                <span className="badge bg-surface-3 text-slate-500">Legacy title</span>
+              )}
             </div>
           </div>
         </div>
